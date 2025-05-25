@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.fix_banget.HelloController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.fix_banget.HelloController">
    <left>
       <AnchorPane prefHeight="500.0" prefWidth="350.0" style="-fx-background-color: #0698ff;" BorderPane.alignment="CENTER">
          <children>
@@ -15,7 +15,7 @@
                   <Image url="@../../../Image/Logo-Membership.png" />
                </image>
             </ImageView>
-            <Text fill="WHITE" layoutX="70.0" layoutY="319.0" strokeType="OUTSIDE" strokeWidth="0.0" text="My Membership">
+            <Text fill="WHITE" layoutX="122.0" layoutY="322.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Budgetin">
                <font>
                   <Font name="System Bold Italic" size="25.0" />
                </font>
@@ -47,7 +47,7 @@
                   <Font name="System Bold" size="12.0" />
                </font>
             </Button>
-            <Text fill="#0698ff" layoutX="128.0" layoutY="368.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Membership">
+            <Text fill="#0698ff" layoutX="144.0" layoutY="373.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Budgetin">
                <font>
                   <Font name="System Bold Italic" size="20.0" />
                </font>
