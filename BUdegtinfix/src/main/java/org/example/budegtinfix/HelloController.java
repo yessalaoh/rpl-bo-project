@@ -14,12 +14,12 @@ public class HelloController {
 
     @FXML
     private void btnLogin(ActionEvent event) throws IOException {
-        loadScene(event, "Login.fxml");
+        loadScene(event, "Login-view.fxml");
     }
 
     @FXML
     private void btnSignup(ActionEvent event) throws IOException {
-        loadScene(event, "SignUp.fxml");
+        loadScene(event, "SignUp-view.fxml");
     }
 
     private void loadScene(ActionEvent event, String fxmlFile) throws IOException {

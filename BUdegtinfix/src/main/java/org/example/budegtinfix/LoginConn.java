@@ -98,7 +98,7 @@ public class LoginConn {
     @FXML
     protected void signUp(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("SignUp.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("SignUp-view.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.show();
