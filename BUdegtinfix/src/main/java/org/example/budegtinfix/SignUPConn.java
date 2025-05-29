@@ -65,7 +65,7 @@ public class SignUPConn {
     @FXML
     protected void goBackToLogin(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("Login.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("Login-view.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.show();
