@@ -1,4 +1,4 @@
-package org.example.budegtinfix;
+package org.example.budegtinfix.Conn;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.example.budegtinfix.Database;
 
 import java.io.IOException;
 import java.sql.Connection;

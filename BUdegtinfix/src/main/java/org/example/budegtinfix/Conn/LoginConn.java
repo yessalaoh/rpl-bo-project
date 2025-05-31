@@ -1,4 +1,4 @@
-package org.example.budegtinfix;
+package org.example.budegtinfix.Conn;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
