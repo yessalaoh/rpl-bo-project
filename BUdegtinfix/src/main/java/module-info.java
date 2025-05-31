@@ -15,4 +15,6 @@ module org.example.budegtinfix {
 
     opens org.example.budegtinfix to javafx.fxml;
     exports org.example.budegtinfix;
+    exports org.example.budegtinfix.Conn;
+    opens org.example.budegtinfix.Conn to javafx.fxml;
 }
