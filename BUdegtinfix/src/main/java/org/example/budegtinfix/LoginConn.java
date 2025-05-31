@@ -60,7 +60,7 @@ public class LoginConn {
 
     private void navigateToUtama(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("utama.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("HomePage-view.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.show();
