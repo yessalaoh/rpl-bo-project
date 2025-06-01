@@ -5,7 +5,8 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<?import javafx.scene.control.PasswordField?> <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.budegtinfix.Conn.LoginConn">
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.budegtinfix.Conn.LoginConn">
     <left>
         <AnchorPane prefHeight="500.0" prefWidth="350.0" style="-fx-background-color: #0698ff;" BorderPane.alignment="CENTER">
             <children>
@@ -39,9 +40,7 @@
                     </image>
                 </ImageView>
                 <TextField fx:id="usernameField" layoutX="112.0" layoutY="195.0" prefWidth="168.0" promptText="Username" style="-fx-background-color: transparent; -fx-border-color: #0598ff; -fx-border-width: 0px 0px 2px 0px;" />
-
-                <PasswordField fx:id="passwordField" layoutX="112.0" layoutY="243.0" prefWidth="168.0" promptText="Password" style="-fx-background-color: transparent; -fx-border-color: #0598ff; -fx-border-width: 0px 0px 2px 0px;" />
-
+                <PasswordField fx:id="passwordField" layoutX="112.0" layoutY="243.0" prefWidth="168.0" promptText="Password" style="-fx-background-color: transparent; -fx-border-color: #0598ff; -fx-border-width: 0px 0px 2px 0px; -fx-background-radius: 10; -fx-border-radius: 10;" />
                 <ImageView fitHeight="43.0" fitWidth="25.0" layoutX="79.0" layoutY="196.0" pickOnBounds="true" preserveRatio="true">
                     <image>
                         <Image url="@../../../Image/Logo-Username.jpg" />

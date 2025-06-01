@@ -1,14 +1,15 @@
 package org.example.budegtinfix.Conn;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Alert;
+import javafx.scene.text.Text;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
+import javafx.fxml.FXMLLoader;
+import javafx.event.ActionEvent;
 import javafx.stage.Stage;
+import org.example.budegtinfix.Session.Session;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -16,8 +17,20 @@ import java.util.Optional;
 public class HomePageconn {
 
     @FXML
+    private Text helloUserText;
+
+    @FXML
+    public void initialize() {
+        String nama = Session.getNamaUser();
+        if (nama != null) {
+            helloUserText.setText("Hallo, " + nama);
+        }
+    }
+
+    @FXML
     void btnNotifClicked(ActionEvent event) {
-        loadScene(event, "Notifikasi-view.fxml");    }
+        loadScene(event, "Notifikasi-view.fxml");
+    }
 
     @FXML
     void transaksiBtnClicked(ActionEvent event) {
@@ -51,16 +64,14 @@ public class HomePageconn {
         alert.setHeaderText(null);
         alert.setContentText("Yakin ingin keluar?");
 
-        Optional<ButtonType> result = alert.showAndWait();
+        Optional<javafx.scene.control.ButtonType> result = alert.showAndWait();
 
-        if (result.isPresent() && result.get() == ButtonType.OK) {
+        if (result.isPresent() && result.get() == javafx.scene.control.ButtonType.OK) {
+            Session.clearSession(); // Hapus session saat logout
             loadScene(event, "Login-view.fxml");
-        } else {
-            System.out.println("Logout dibatalkan.");
         }
     }
 
-    // Method untuk memuat scene
     private void loadScene(ActionEvent event, String fxmlFile) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/budegtinfix/" + fxmlFile));

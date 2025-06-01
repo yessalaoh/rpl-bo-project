@@ -13,7 +13,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.budegtinfix.Database.CatatanDB;
-import org.example.budegtinfix.Database.UserDB; // Pastikan ini ada dan berfungsi
+import org.example.budegtinfix.Database.UserDB;
 
 import java.io.IOException;
 import java.net.URL;
@@ -22,27 +22,16 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
 
-// Jika Anda ingin menggunakan BCrypt, Anda perlu menambahkan library ke pom.xml atau build.gradle
-// Contoh dependency Maven:
-/*
-<dependency>
-    <groupId>org.mindrot</groupId>
-    <artifactId>jbcrypt</artifactId>
-    <version>0.4</version>
-</dependency>
-*/
-// import org.mindrot.jbcrypt.BCrypt; // Uncomment jika Anda sudah menambahkan library BCrypt
-
 public class SignUPConn implements Initializable {
 
     @FXML
     private TextField usernameField;
 
     @FXML
-    private PasswordField passwordField; // Untuk input password yang tersembunyi
+    private PasswordField passwordField;
 
     @FXML
-    private TextField passwordVisibleField; // Untuk menampilkan password saat checkbox dicentang
+    private TextField passwordVisibleField;
 
     @FXML
     private CheckBox showPasswordCheckBox;
@@ -52,21 +41,17 @@ public class SignUPConn implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Pastikan UserDB.createUserTable() hanya dipanggil sekali saat aplikasi startup
-        // atau pastikan tabel sudah ada untuk menghindari re-kreasi yang tidak perlu.
         UserDB.createUserTable();
 
-        // Binding dua arah agar nilai passwordField dan passwordVisibleField selalu sama
         passwordVisibleField.textProperty().bindBidirectional(passwordField.textProperty());
 
-        // Listener untuk mengatur visibilitas field password
         showPasswordCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal) { // Jika checkbox dicentang (show password)
+            if (newVal) {
                 passwordVisibleField.setVisible(true);
-                passwordVisibleField.setManaged(true); // Memastikan field terlihat dan memengaruhi layout
+                passwordVisibleField.setManaged(true);
                 passwordField.setVisible(false);
-                passwordField.setManaged(false); // Memastikan field tidak terlihat dan tidak memengaruhi layout
-            } else { // Jika checkbox tidak dicentang (hide password)
+                passwordField.setManaged(false);
+            } else {
                 passwordVisibleField.setVisible(false);
                 passwordVisibleField.setManaged(false);
                 passwordField.setVisible(true);
@@ -74,17 +59,16 @@ public class SignUPConn implements Initializable {
             }
         });
 
-        // Set awal: passwordVisibleField tidak terlihat, passwordField terlihat
         passwordVisibleField.setVisible(false);
         passwordVisibleField.setManaged(false);
         passwordField.setVisible(true);
-        passwordField.setManaged(true); // Pastikan ini juga di set
+        passwordField.setManaged(true);
     }
 
     @FXML
     protected void btnSignUp(ActionEvent event) {
         String username = usernameField.getText().trim();
-        String passwordRaw = passwordField.getText(); // Password mentah dari input
+        String passwordRaw = passwordField.getText();
         String email = emailField.getText().trim();
 
         if (username.isEmpty() || passwordRaw.isEmpty() || email.isEmpty()) {
@@ -98,16 +82,10 @@ public class SignUPConn implements Initializable {
             return;
         }
 
-        // --- BAGIAN KRITIS: KEAMANAN PASSWORD ---
-        // JANGAN PERNAH MENYIMPAN PASSWORD MENTAH DI DATABASE!
-        // Gunakan hashing password yang kuat seperti BCrypt.
 
         String hashedPassword;
         try {
-            // Contoh menggunakan BCrypt (jika Anda sudah menambahkan dependency jbcrypt)
-            // hashedPassword = BCrypt.hashpw(passwordRaw, BCrypt.gensalt());
-            // TODO: UNCOMMENT BARIS DI ATAS DAN HAPUS BARIS DI BAWAH KETIKA MENGGUNAKAN BCRYPT
-            hashedPassword = passwordRaw; // HANYA UNTUK TUJUAN PENGEMBANGAN/DEBUGGING (TIDAK AMAN)
+            hashedPassword = passwordRaw;
 
         } catch (Exception e) {
             System.err.println("Error hashing password: " + e.getMessage());
@@ -128,15 +106,13 @@ public class SignUPConn implements Initializable {
 
             pstmt.setString(1, username);
             pstmt.setString(2, email);
-            pstmt.setString(3, hashedPassword); // Simpan password yang sudah di-hash
+            pstmt.setString(3, hashedPassword);
             pstmt.executeUpdate();
 
             showAlert(Alert.AlertType.INFORMATION, "Berhasil!", "Akun berhasil dibuat.");
 
-            // Arahkan ke halaman login setelah berhasil mendaftar
             navigateToLogin(event);
         } catch (SQLException e) {
-            // Tangani error jika username atau email sudah terdaftar (tergantung constraint DB Anda)
             if (e.getMessage() != null && e.getMessage().toLowerCase().contains("unique constraint failed")) {
                 showAlert(Alert.AlertType.ERROR, "Database Error", "Username atau email sudah terdaftar.");
             } else {
@@ -154,8 +130,6 @@ public class SignUPConn implements Initializable {
 
     private void navigateToLogin(ActionEvent event) {
         try {
-            // Pastikan path ini benar sesuai struktur src/main/resources
-            // Contoh: src/main/resources/org/example/budegtinfix/Login-view.fxml
             URL fxmlLocation = getClass().getResource("/org/example/budegtinfix/Login-view.fxml");
 
             if (fxmlLocation == null) {
@@ -164,13 +138,12 @@ public class SignUPConn implements Initializable {
                 return;
             }
 
-            FXMLLoader loader = new FXMLLoader(fxmlLocation); // Gunakan instance FXMLLoader
+            FXMLLoader loader = new FXMLLoader(fxmlLocation);
             Parent root = loader.load();
 
-            // Mendapatkan Stage dari event
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.setTitle("Budgetin - Login"); // Atur judul Stage baru
+            stage.setTitle("Budgetin - Login");
             stage.show();
         } catch (IOException e) {
             System.err.println("IO Exception during navigation to Login: " + e.getMessage());
@@ -191,15 +164,14 @@ public class SignUPConn implements Initializable {
         if (password.length() < 8) {
             return false;
         }
-        if (!password.matches(".*[A-Z].*")) { // Harus mengandung setidaknya satu huruf besar
+        if (!password.matches(".*[A-Z].*")) {
             return false;
         }
-        if (!password.matches(".*\\d.*")) { // Harus mengandung setidaknya satu angka
+        if (!password.matches(".*\\d.*")) {
             return false;
         }
-        // Perbaikan: Harus mengandung setidaknya satu simbol (non-huruf, non-angka, non-spasi)
         if (!password.matches(".*[^a-zA-Z0-9 ].*")) {
-            return false; // Jika tidak ada simbol, return false
+            return false;
         }
         return true;
     }
