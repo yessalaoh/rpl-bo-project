@@ -7,7 +7,7 @@
 //        try (Connection conn = CatatanDB.connect();
 //             var stmt = conn.createStatement()) {
 //
-//            String sql = "ALTER TABLE users ADD COLUMN nama TEXT NOT NULL DEFAULT 'User';";
+//            String sql = "ALTER TABLE transaksi ADD COLUMN gambar_path TEXT";
 //            stmt.execute(sql);
 //
 //            System.out.println("Kolom 'nama' berhasil ditambahkan.");

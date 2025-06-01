@@ -49,7 +49,7 @@ public class HomePageconn {
 
     @FXML
     void laporanBtnClicked(ActionEvent event) {
-        loadScene(event, "Laporan.fxml");
+        loadScene(event, "Diagram.fxml");
     }
 
     @FXML
