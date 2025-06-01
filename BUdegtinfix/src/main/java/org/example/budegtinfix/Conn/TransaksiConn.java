@@ -16,28 +16,25 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 import org.example.budegtinfix.Database.TransaksiDAO;
-
+import org.example.budegtinfix.Session.Session;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
+import java.util.Optional; // Pastikan ini diimpor untuk Optional
 import java.util.ResourceBundle;
+import java.util.List; // Import untuk List di TransaksiDAO
 
 public class TransaksiConn implements Initializable {
+    // Kelas Transaksi Anda sudah bagus, biarkan seperti itu
     public static class Transaksi {
         private final IntegerProperty id;
-        private final StringProperty tanggal;
-        private final StringProperty jenis;
-        private final StringProperty kategori;
-        private final StringProperty deskripsi;
+        private final StringProperty tanggal, jenis, kategori, deskripsi;
         private final DoubleProperty jumlah;
         private final BooleanProperty memilikiDokumen;
 
-        public Transaksi(int id, String tanggal, String jenis, String kategori,
-                         String deskripsi, double jumlah, boolean memilikiDokumen) {
+        public Transaksi(int id, String tanggal, String jenis, String kategori, String deskripsi, double jumlah, boolean memilikiDokumen) {
             this.id = new SimpleIntegerProperty(id);
             this.tanggal = new SimpleStringProperty(tanggal);
             this.jenis = new SimpleStringProperty(jenis);
@@ -45,11 +42,6 @@ public class TransaksiConn implements Initializable {
             this.deskripsi = new SimpleStringProperty(deskripsi);
             this.jumlah = new SimpleDoubleProperty(jumlah);
             this.memilikiDokumen = new SimpleBooleanProperty(memilikiDokumen);
-        }
-
-        public Transaksi(String tanggal, String jenis, String kategori,
-                         String deskripsi, double jumlah, boolean memilikiDokumen) {
-            this(0, tanggal, jenis, kategori, deskripsi, jumlah, memilikiDokumen);
         }
 
         public int getId() { return id.get(); }
@@ -69,48 +61,28 @@ public class TransaksiConn implements Initializable {
         public BooleanProperty memilikiDokumenProperty() { return memilikiDokumen; }
     }
 
-    @FXML private ComboBox<String> comboJenisTransaksi;
-    @FXML private DatePicker datePickerStart;
-    @FXML private DatePicker datePickerEnd;
-    @FXML private ComboBox<String> comboKategori;
-    @FXML private Button btnApplyFilter;
-    @FXML private Button btnResetFilter;
+    @FXML private ComboBox<String> comboJenisTransaksi, comboKategori;
+    @FXML private DatePicker datePickerStart, datePickerEnd;
+    @FXML private Button btnApplyFilter, btnResetFilter, btnTambahTransaksi;
     @FXML private TreeTableView<Transaksi> treeTableTransaksi;
-    @FXML private TreeTableColumn<Transaksi, String> colTanggal;
-    @FXML private TreeTableColumn<Transaksi, String> colJenis;
-    @FXML private TreeTableColumn<Transaksi, String> colKategori;
-    @FXML private TreeTableColumn<Transaksi, String> colDeskripsi;
+    @FXML private TreeTableColumn<Transaksi, String> colTanggal, colJenis, colKategori, colDeskripsi;
     @FXML private TreeTableColumn<Transaksi, Number> colJumlah;
     @FXML private TreeTableColumn<Transaksi, Boolean> colDokumen;
     @FXML private TreeTableColumn<Transaksi, Void> colAksi;
-    @FXML private Button btnTambahTransaksi;
 
     private final TransaksiDAO transaksiDAO = new TransaksiDAO();
-    private final ObservableList<Transaksi> dataTransaksi = FXCollections.observableArrayList();
+    private ObservableList<Transaksi> currentDisplayedTransaksi = FXCollections.observableArrayList();
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         comboJenisTransaksi.getItems().addAll("Semua", "Pemasukan", "Pengeluaran");
         comboJenisTransaksi.getSelectionModel().selectFirst();
-
-        comboKategori.getItems().addAll(
-                "Semua Kategori",
-                "Makanan",
-                "Transportasi",
-                "Gaji",
-                "Tabungan",
-                "Hiburan",
-                "Tagihan",
-                "Pendidikan",
-                "Investasi",
-                "Lain-lain"
-        );
+        comboKategori.getItems().addAll("Semua Kategori", "Makanan", "Transportasi", "Gaji", "Tabungan", "Hiburan", "Tagihan", "Pendidikan", "Investasi", "Lain-lain");
         comboKategori.getSelectionModel().selectFirst();
-        comboKategori.setStyle("-fx-font-size: 14px;");
 
         setupTreeTableView();
-
-        loadDataFromDatabase();
+        loadAllDataForCurrentUser(); // Memuat semua data awal untuk user saat ini
     }
 
     private void setupTreeTableView() {
@@ -132,11 +104,7 @@ public class TransaksiConn implements Initializable {
                     setText(String.format("Rp%,.2f", item.doubleValue()));
                     TreeItem<Transaksi> treeItem = getTreeTableRow().getTreeItem();
                     if (treeItem != null && treeItem.getValue() != null) {
-                        if ("Pemasukan".equals(treeItem.getValue().getJenis())) {
-                            setStyle("-fx-text-fill: green;");
-                        } else {
-                            setStyle("-fx-text-fill: red;");
-                        }
+                        setStyle("-fx-text-fill: " + ("Pemasukan".equals(treeItem.getValue().getJenis()) ? "green" : "red") + ";");
                     }
                 }
             }
@@ -144,128 +112,91 @@ public class TransaksiConn implements Initializable {
 
         colDokumen.setCellFactory(tc -> new TreeTableCell<>() {
             private final ImageView icon = new ImageView();
-
             {
                 icon.setFitHeight(16);
                 icon.setFitWidth(16);
             }
-
             @Override
             protected void updateItem(Boolean item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
+                if (empty || item == null || !item) {
                     setGraphic(null);
                 } else {
-                    if (item) {
-                        try {
-                            icon.setImage(new Image(getClass().getResourceAsStream("/org/example/budegtinfix/images/attachment.png")));
-                            setGraphic(icon);
-                        } catch (Exception e) {
-                            setGraphic(null);
-                        }
-                    } else {
+                    try {
+                        icon.setImage(new Image(getClass().getResourceAsStream("/org/example/budegtinfix/images/attachment.png")));
+                        setGraphic(icon);
+                    } catch (Exception e) {
+                        System.err.println("Gagal load ikon dokumen: " + e.getMessage());
                         setGraphic(null);
                     }
                 }
             }
         });
 
-        colAksi.setCellFactory(new Callback<>() {
+        colAksi.setCellFactory(tc -> new TreeTableCell<>() {
+            private final Button deleteBtn = new Button("Hapus");
+            {
+                deleteBtn.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-size: 12;");
+                deleteBtn.setOnAction(event -> hapusTransaksi(getTreeTableRow().getItem()));
+            }
             @Override
-            public TreeTableCell<Transaksi, Void> call(TreeTableColumn<Transaksi, Void> param) {
-                return new TreeTableCell<>() {
-                    private final Button editBtn = new Button("Edit");
-                    private final Button deleteBtn = new Button("Hapus");
-
-                    {
-                        editBtn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 12;");
-                        deleteBtn.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-size: 12;");
-
-//                        editBtn.setOnAction(event -> {
-//                            Transaksi transaksi = getTreeTableRow().getItem();
-//                            editTransaksi(transaksi);
-//                        });
-
-                        deleteBtn.setOnAction(event -> {
-                            Transaksi transaksi = getTreeTableRow().getItem();
-                            hapusTransaksi(transaksi);
-                        });
-                    }
-
-                    @Override
-                    protected void updateItem(Void item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (empty) {
-                            setGraphic(null);
-                        } else {
-                            HBox hbox = new HBox(5, editBtn, deleteBtn);
-                            setGraphic(hbox);
-                        }
-                    }
-                };
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getTreeTableRow().getItem() == null) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(new HBox(5, deleteBtn));
+                }
             }
         });
     }
 
-    private void loadDataFromDatabase() {
+    private void loadAllDataForCurrentUser() {
         try {
-            dataTransaksi.clear();
-            dataTransaksi.addAll(transaksiDAO.getAllTransaksi());
-
-            TreeItem<Transaksi> root = new TreeItem<>();
-            dataTransaksi.forEach(transaksi -> root.getChildren().add(new TreeItem<>(transaksi)));
-            treeTableTransaksi.setRoot(root);
-            treeTableTransaksi.setShowRoot(false);
+            currentDisplayedTransaksi.setAll(transaksiDAO.getAllTransaksiForCurrentUser());
+            refreshTreeTable(currentDisplayedTransaksi);
         } catch (Exception e) {
-            showAlert("Error", "Gagal memuat data dari database");
-            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Gagal memuat data dari database: " + e.getMessage());
         }
     }
 
-//    private void editTransaksi(Transaksi transaksi) {
-//        try {
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/budegtinfix/EditTransaksi-view.fxml"));
-//            Parent root = loader.load();
-//
-//            EditTransaksiConn controller = loader.getController();
-//            controller.setTransaksiData(transaksi);
-//            controller.setTransaksiDAO(transaksiDAO);
-//            controller.setTransaksiConn(this);
-//
-//            Stage stage = new Stage();
-//            stage.setScene(new Scene(root));
-//            stage.setTitle("Edit Transaksi");
-//            stage.showAndWait();
-//
-//            loadDataFromDatabase();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            showAlert("Error", "Gagal membuka form edit transaksi");
-//        }
-//    }
+    private void loadFilteredDataFromDatabase(String jenis, String kategori, LocalDate startDate, LocalDate endDate) {
+        try {
+            currentDisplayedTransaksi.setAll(transaksiDAO.getFilteredTransaksi(jenis, kategori, startDate, endDate));
+            refreshTreeTable(currentDisplayedTransaksi);
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Gagal memuat data transaksi berdasarkan filter: " + e.getMessage());
+        }
+    }
+
+    private void refreshTreeTable(ObservableList<Transaksi> list) {
+        TreeItem<Transaksi> root = new TreeItem<>();
+        if (list != null && !list.isEmpty()) {
+            list.forEach(t -> root.getChildren().add(new TreeItem<>(t)));
+        }
+        treeTableTransaksi.setRoot(root);
+        treeTableTransaksi.setShowRoot(false);
+    }
 
     private void hapusTransaksi(Transaksi transaksi) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Konfirmasi Hapus");
         alert.setHeaderText(null);
-        alert.setContentText("Apakah Anda yakin ingin menghapus transaksi ini?\n" +
-                "Tanggal: " + transaksi.getTanggal() + "\n" +
-                "Deskripsi: " + transaksi.getDeskripsi() + "\n" +
-                "Jumlah: Rp" + String.format("%,.2f", transaksi.getJumlah()));
+        alert.setContentText("Yakin ingin menghapus transaksi?\n" + transaksi.getDeskripsi());
 
         Optional<ButtonType> result = alert.showAndWait();
+
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
                 if (transaksiDAO.deleteTransaksi(transaksi.getId())) {
-                    dataTransaksi.remove(transaksi);
-                    TreeItem<Transaksi> root = new TreeItem<>();
-                    dataTransaksi.forEach(t -> root.getChildren().add(new TreeItem<>(t)));
-                    treeTableTransaksi.setRoot(root);
-                    showAlert("Sukses", "Transaksi berhasil dihapus");
+                    applyFilterClicked();
+                    showAlert(Alert.AlertType.INFORMATION, "Sukses", "Transaksi berhasil dihapus.");
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Gagal", "Gagal menghapus transaksi dari database.");
                 }
             } catch (Exception e) {
-                showAlert("Error", "Gagal menghapus transaksi dari database");
                 e.printStackTrace();
+                showAlert(Alert.AlertType.ERROR, "Error", "Terjadi kesalahan saat menghapus transaksi: " + e.getMessage());
             }
         }
     }
@@ -273,140 +204,93 @@ public class TransaksiConn implements Initializable {
     @FXML
     private void tambahBtnClicked(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/budegtinfix/TambahTransaksi-view.fxml"));
+            URL fxmlLocation = getClass().getResource("/org/example/budegtinfix/TambahTransaksi-view.fxml");
+            System.out.println("FXML Location: " + fxmlLocation);
+
+            if (fxmlLocation == null) {
+                showAlert(Alert.AlertType.ERROR, "Error", "File FXML TambahTransaksi-view.fxml tidak ditemukan! Periksa path resource.");
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(fxmlLocation);
             Parent root = loader.load();
 
-//            TambahTransaksiConn controller = loader.getController();
-//            controller.setTransaksiDAO(transaksiDAO);
-//            controller.setTransaksiConn(this);
-
+            int currentUserId = Session.getIdUser(); // Ambil ID user dari sesi yang aktif
+            TambahTransaksiConn controller = loader.getController(); // Dapatkan instance controller dari FXML yang dimuat
+            controller.setCurrentUserId(currentUserId); // Panggil metode setter di controller untuk meneruskan ID user
 
             Stage stage = new Stage();
-//            controller.setDialogStage(stage);
             stage.setScene(new Scene(root));
             stage.setTitle("Tambah Transaksi");
             stage.showAndWait();
 
-            loadDataFromDatabase();
+            applyFilterClicked();
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert("Error", "Gagal membuka form tambah transaksi");
+            showAlert(Alert.AlertType.ERROR, "Error", "Gagal membuka form tambah transaksi: " + e.getMessage());
         }
     }
 
     @FXML
     private void applyFilterClicked() {
         String jenis = comboJenisTransaksi.getValue();
-        LocalDate startDate = datePickerStart.getValue();
-        LocalDate endDate = datePickerEnd.getValue();
         String kategori = comboKategori.getValue();
+        LocalDate start = datePickerStart.getValue();
+        LocalDate end = datePickerEnd.getValue();
 
-        ObservableList<Transaksi> filteredData = FXCollections.observableArrayList();
-
-        for (Transaksi transaksi : dataTransaksi) {
-            boolean match = true;
-
-            if (!"Semua".equals(jenis) && !jenis.equals(transaksi.getJenis())) {
-                match = false;
-            }
-
-            if (startDate != null || endDate != null) {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                LocalDate transaksiDate = LocalDate.parse(transaksi.getTanggal(), formatter);
-
-                if (startDate != null && transaksiDate.isBefore(startDate)) {
-                    match = false;
-                }
-
-                if (endDate != null && transaksiDate.isAfter(endDate)) {
-                    match = false;
-                }
-            }
-
-            if (kategori != null && !"Semua Kategori".equals(kategori) && !kategori.equals(transaksi.getKategori())) {
-                match = false;
-            }
-
-            if (match) {
-                filteredData.add(transaksi);
-            }
-        }
-
-        TreeItem<Transaksi> root = new TreeItem<>();
-        filteredData.forEach(transaksi -> root.getChildren().add(new TreeItem<>(transaksi)));
-        treeTableTransaksi.setRoot(root);
+        loadFilteredDataFromDatabase(jenis, kategori, start, end);
     }
 
     @FXML
     private void resetFilterClicked() {
         comboJenisTransaksi.getSelectionModel().selectFirst();
+        comboKategori.getSelectionModel().selectFirst();
         datePickerStart.setValue(null);
         datePickerEnd.setValue(null);
-        comboKategori.getSelectionModel().selectFirst();
-
-        TreeItem<Transaksi> root = new TreeItem<>();
-        dataTransaksi.forEach(transaksi -> root.getChildren().add(new TreeItem<>(transaksi)));
-        treeTableTransaksi.setRoot(root);
+        loadAllDataForCurrentUser();
     }
 
-
-
-    @FXML
-    private void pengaturanBtnClicked(ActionEvent event) {
-        loadScene(event, "Pengaturan-view.fxml");
-    }
-
-    @FXML
-    private void notifikasiBtnClicked(ActionEvent event) {
-        loadScene(event, "Notifikasi-view.fxml");
-    }
-
-    @FXML
-    private void laporanBtnClicked(ActionEvent event) {
-        loadScene(event, "Laporan-view.fxml");
-    }
-
-    @FXML
-    private void anggaranBtnClicked(ActionEvent event) {
-        loadScene(event, "Anggaran-view.fxml");
-    }
-
-    @FXML
-    private void kategoriBtnClicked(ActionEvent event) {
-        loadScene(event, "Kategori-view.fxml");
-    }
-
-    @FXML
-    private void logoutBtnClicked(ActionEvent event) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Konfirmasi Logout");
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
         alert.setHeaderText(null);
-        alert.setContentText("Yakin ingin keluar?");
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 
+    // Navigation Buttons
+    @FXML private void pengaturanBtnClicked(ActionEvent e) { loadScene(e, "Pengaturan-view.fxml"); }
+    @FXML private void notifikasiBtnClicked(ActionEvent e) { loadScene(e, "Notifikasi-view.fxml"); }
+    @FXML private void laporanBtnClicked(ActionEvent e) { loadScene(e, "Laporan-view.fxml"); }
+    @FXML private void anggaranBtnClicked(ActionEvent e) { loadScene(e, "Anggaran-view.fxml"); }
+    @FXML private void kategoriBtnClicked(ActionEvent e) { loadScene(e, "Kategori-view.fxml"); }
+    @FXML private void logoutBtnClicked(ActionEvent e) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Logout");
+        alert.setContentText("Yakin ingin logout?");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            loadScene(event, "Login-view.fxml");
+            Session.clearSession();
+            loadScene(e, "Login-view.fxml");
         }
     }
 
     private void loadScene(ActionEvent event, String fxmlFile) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/budegtinfix/" + fxmlFile));
+            URL fxmlLocation = getClass().getResource("/org/example/budegtinfix/" + fxmlFile);
+            if (fxmlLocation == null) {
+                showAlert(Alert.AlertType.ERROR, "Error", "File FXML " + fxmlFile + " tidak ditemukan! Periksa path resource.");
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(fxmlLocation);
             Parent root = loader.load();
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Gagal memuat halaman: " + fxmlFile);
             e.printStackTrace();
-            showAlert("Error", "Gagal memuat halaman: " + fxmlFile);
         }
-    }
-
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }
