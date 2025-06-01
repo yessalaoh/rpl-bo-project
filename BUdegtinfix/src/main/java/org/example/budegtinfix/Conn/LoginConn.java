@@ -7,10 +7,10 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-// import javafx.scene.control.TextField; // Hapus atau biarkan jika masih ada TextField lain
-import javafx.scene.control.PasswordField; // <--- BARIS INI PENTING! Import PasswordField
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.example.budegtinfix.Database.CatatanDB;
+import org.example.budegtinfix.Session.Session;
 
 import java.io.IOException;
 import java.net.URL;
@@ -19,80 +19,94 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.example.budegtinfix.Database.CatatanDB;
-
 public class LoginConn {
+
     @FXML
     private TextField usernameField;
+
     @FXML
-    private PasswordField passwordField; // <--- UBAH TIPE INI DARI TextField MENJADI PasswordField
+    private TextField passwordField;
 
     @FXML
     protected void login(ActionEvent event) {
         final String username = usernameField.getText().trim();
-        final String passwordInput = passwordField.getText(); // getText() tetap berfungsi pada PasswordField
+        final String passwordInput = passwordField.getText();
 
         if (username.isEmpty() || passwordInput.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Form Error", "Please enter your username and password.");
+            showAlert(Alert.AlertType.ERROR, "Form Error", "Silakan masukkan username dan password.");
             return;
         }
 
         try (Connection conn = CatatanDB.connect()) {
             if (conn == null) {
-                showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to connect to the database.");
+                showAlert(Alert.AlertType.ERROR, "Database Error", "Koneksi ke database gagal.");
                 return;
             }
 
-            String query = "SELECT id, username, email, password FROM users WHERE username = ?";
+            String query = "SELECT id, username, email FROM users WHERE username = ? AND password = ?";
             try (PreparedStatement statement = conn.prepareStatement(query)) {
                 statement.setString(1, username);
+                statement.setString(2, passwordInput);
 
                 try (ResultSet rs = statement.executeQuery()) {
                     if (rs.next()) {
-                        String hashedPasswordFromDb = rs.getString("password");
+                        int idUser = rs.getInt("id");
 
-                        // PERINGATAN KEAMANAN KRITIS: JANGAN PERNAH MEMBANDINGKAN PASSWORD MENTAH!
-                        // Gunakan hashing password yang kuat (misalnya BCrypt.checkpw)
-                        if (passwordInput.equals(hashedPasswordFromDb)) {
-                            int idUser = rs.getInt("id");
-                            String email = rs.getString("email");
-                            navigateToHome(event, username, email);
-                        } else {
-                            showAlert(Alert.AlertType.ERROR, "Login Error", "Invalid username or password.");
-                        }
 
+                        Session.setNamaUser(username);
+                        Session.setIdUser(idUser);
+
+                        navigateToHome(event);
                     } else {
-                        showAlert(Alert.AlertType.ERROR, "Login Error", "Invalid username or password.");
+                        showAlert(Alert.AlertType.ERROR, "Login Gagal", "Username atau password salah.");
                     }
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error logging in: " + e.getMessage());
+            System.err.println("Kesalahan saat login: " + e.getMessage());
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Login Error", "An error occurred during login. Please try again later.");
+            showAlert(Alert.AlertType.ERROR, "Login Error", "Terjadi kesalahan saat login. Coba lagi.");
         }
     }
 
-    private void navigateToHome(ActionEvent event, String username, String email) {
+    private void navigateToHome(ActionEvent event) {
         try {
             URL fxmlLocation = getClass().getResource("/org/example/budegtinfix/HomePage-view.fxml");
             if (fxmlLocation == null) {
-                System.err.println("ERROR: FXML file 'HomePage-view.fxml' not found. Check its path and location.");
-                showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to find home page FXML.");
+                System.err.println("FXML 'HomePage-view.fxml' tidak ditemukan.");
+                showAlert(Alert.AlertType.ERROR, "Navigasi Error", "Gagal memuat halaman utama.");
                 return;
             }
 
-            FXMLLoader loader = new FXMLLoader(fxmlLocation);
-            Parent root = loader.load();
-
+            Parent root = FXMLLoader.load(fxmlLocation);
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.setTitle("Budgetin - Home");
             stage.show();
         } catch (IOException e) {
-            System.err.println("IO Exception during navigation to Home: " + e.getMessage());
+            System.err.println("IO Exception: " + e.getMessage());
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to navigate to the home page.");
+            showAlert(Alert.AlertType.ERROR, "Navigasi Error", "Gagal membuka halaman utama.");
+        }
+    }
+
+    @FXML
+    protected void signUp(ActionEvent event) {
+        try {
+            URL fxmlLocation = getClass().getResource("/org/example/budegtinfix/SignUp-view.fxml");
+            if (fxmlLocation == null) {
+                System.err.println("FXML 'SignUp-view.fxml' tidak ditemukan.");
+                showAlert(Alert.AlertType.ERROR, "Navigasi Error", "Gagal memuat halaman pendaftaran.");
+                return;
+            }
+
+            Parent root = FXMLLoader.load(fxmlLocation);
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("IO Exception: " + e.getMessage());
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Navigasi Error", "Gagal membuka halaman pendaftaran.");
         }
     }
 
@@ -102,30 +116,5 @@ public class LoginConn {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
-    }
-
-    @FXML
-    protected void signUp(ActionEvent event) {
-        try {
-            URL fxmlLocation = getClass().getResource("/org/example/budegtinfix/SignUp-view.fxml");
-
-            if (fxmlLocation == null) {
-                System.err.println("ERROR: FXML file 'SignUp-view.fxml' not found. Check its path and location.");
-                showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to find sign-up page FXML.");
-                return;
-            }
-
-            FXMLLoader loader = new FXMLLoader(fxmlLocation);
-            Parent root = loader.load();
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Budgetin - Sign Up");
-            stage.show();
-        } catch (IOException e) {
-            System.err.println("IO Exception during navigation to Sign Up: " + e.getMessage());
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Failed to navigate to the sign-up page.");
-        }
     }
 }
