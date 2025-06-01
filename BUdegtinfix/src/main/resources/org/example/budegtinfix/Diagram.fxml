@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.budegtinfix.Conn.DiagramConn"
+            prefHeight="515.0" prefWidth="800.0"
+            style="-fx-background-color: #dfdfdf;">
+
+    <!-- === Header === -->
+    <top>
+        <AnchorPane prefHeight="72.0" style="-fx-background-color: #0698ff;" BorderPane.alignment="CENTER">
+            <children>
+                <Text fx:id="helloUserText" layoutX="654.0" layoutY="40.0"
+                      text="Hallo, User" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0">
+                    <font>
+                        <Font name="System Bold Italic" size="34.0" />
+                    </font>
+                </Text>
+
+                <Button fx:id="NotifBtn" layoutX="69.0" layoutY="23.0"
+                        onAction="#btnNotifClicked" prefHeight="27.0" prefWidth="74.0"
+                        text="Notifikasi" textFill="#f4e9e9" style="-fx-background-color: Transparent;">
+                    <font>
+                        <Font name="System Bold" size="12.0" />
+                    </font>
+                </Button>
+
+                <ImageView layoutX="42.0" layoutY="17.0" fitHeight="34.0" fitWidth="36.0">
+                    <image>
+                        <Image url="@../../../Image/Logo-Notifikasi.png" />
+                    </image>
+                </ImageView>
+            </children>
+        </AnchorPane>
+    </top>
+
+    <!-- === Sidebar Navigasi === -->
+    <left>
+        <Pane prefWidth="161.0" style="-fx-background-color: #36454F;" BorderPane.alignment="CENTER">
+            <children>
+                <!-- Transaksi -->
+                <ImageView layoutX="33" layoutY="31" fitHeight="25" fitWidth="25">
+                    <image><Image url="@../../../Image/Logo-Transaksi.png" /></image>
+                </ImageView>
+                <Button fx:id="transaksiBtn" layoutX="70" layoutY="30"
+                        onAction="#transaksiBtnClicked" prefHeight="27" prefWidth="77"
+                        text="Transaksi" textFill="#fffbfb" style="-fx-background-color: Transparent;">
+                    <font><Font name="System Bold" size="12" /></font>
+                </Button>
+
+                <!-- Kategori -->
+                <ImageView layoutX="33" layoutY="75" fitHeight="25" fitWidth="25">
+                    <image><Image url="@../../../Image/Logo-kategori.png" /></image>
+                </ImageView>
+                <Button fx:id="btnKategori" layoutX="72" layoutY="75"
+                        onAction="#kategoriBtnClicked" prefHeight="27" prefWidth="77"
+                        text="Kategori" textFill="#fffbfb" style="-fx-background-color: Transparent;">
+                    <font><Font name="System Bold" size="12" /></font>
+                </Button>
+
+                <!-- Anggaran -->
+                <ImageView layoutX="34" layoutY="123" fitHeight="25" fitWidth="25">
+                    <image><Image url="@../../../Image/Logo-Anggaran.png" /></image>
+                </ImageView>
+                <Button fx:id="btnAnggaran" layoutX="72" layoutY="123"
+                        onAction="#anggaranBtnClicked" prefHeight="31" prefWidth="77"
+                        text="Anggaran" textFill="#fffbfb" style="-fx-background-color: Transparent;">
+                    <font><Font name="System Bold" size="12" /></font>
+                </Button>
+
+                <!-- Laporan -->
+                <ImageView layoutX="35" layoutY="173" fitHeight="29" fitWidth="29">
+                    <image><Image url="@../../../Image/Logo-Laporan.png" /></image>
+                </ImageView>
+                <Button fx:id="btnLaporan" layoutX="72" layoutY="175"
+                        onAction="#laporanBtnClicked" prefHeight="27" prefWidth="77"
+                        text="Laporan" textFill="#fffbfb" style="-fx-background-color: Transparent;">
+                    <font><Font name="System Bold" size="12" /></font>
+                </Button>
+
+                <!-- Pengaturan -->
+                <ImageView layoutX="29" layoutY="223" fitHeight="33" fitWidth="33">
+                    <image><Image url="@../../../Image/Logo-Pengaturan.png" /></image>
+                </ImageView>
+                <Button fx:id="PengaturanBtn" layoutX="64" layoutY="227"
+                        onAction="#pengaturanBtnClicked" prefHeight="30" prefWidth="93"
+                        text="Pengaturan" textFill="#fffbfb" style="-fx-background-color: Transparent;">
+                    <font><Font name="System Bold" size="12" /></font>
+                </Button>
+
+                <!-- Logout -->
+                <ImageView layoutX="30" layoutY="273" fitHeight="32" fitWidth="31">
+                    <image><Image url="@../../../Image/Logo-logout.png" /></image>
+                </ImageView>
+                <Button fx:id="btnLogout" layoutX="72" layoutY="277"
+                        onAction="#logoutBtnClicked" prefHeight="27" prefWidth="77"
+                        text="Logout" textFill="#fffbfb" style="-fx-background-color: Transparent;">
+                    <font><Font name="System Bold" size="12" /></font>
+                </Button>
+            </children>
+        </Pane>
+    </left>
+
+    <!-- === Isi Diagram === -->
+    <center>
+        <AnchorPane prefHeight="443.0" prefWidth="639.0" BorderPane.alignment="CENTER">
+            <children>
+                <Label layoutX="250.0" layoutY="10.0" style="-fx-font-size: 20px;" text="Ringkasan Keuangan" />
+                <Label layoutX="120.0" layoutY="40.0" style="-fx-font-size: 14px;" text="Pengeluaran" />
+                <Label layoutX="470.0" layoutY="40.0" style="-fx-font-size: 14px;" text="Pemasukan" />
+
+                <PieChart fx:id="piePengeluaran" layoutX="30.0" layoutY="60.0"
+                          prefHeight="350.0" prefWidth="250.0"
+                          title="Pengeluaran per Kategori" />
+
+                <PieChart fx:id="piePemasukan" layoutX="340.0" layoutY="60.0"
+                          prefHeight="350.0" prefWidth="250.0"
+                          title="Pemasukan per Kategori" />
+            </children>
+        </AnchorPane>
+    </center>
+
+</BorderPane>

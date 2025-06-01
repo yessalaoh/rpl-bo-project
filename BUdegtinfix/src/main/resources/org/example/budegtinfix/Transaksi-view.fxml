@@ -14,7 +14,6 @@
             xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="org.example.budegtinfix.Conn.TransaksiConn">
 
-    <!-- Header Section -->
     <top>
         <AnchorPane prefHeight="90.0" prefWidth="1000.0" style="-fx-background-color: #0698ff;">
             <Text fill="WHITE" layoutX="400.0" layoutY="55.0" strokeType="OUTSIDE" strokeWidth="0.0"
@@ -50,16 +49,13 @@
         </AnchorPane>
     </top>
 
-    <!-- Sidebar Menu -->
     <left>
         <VBox prefWidth="200.0" style="-fx-background-color: #36454F;" spacing="15">
             <padding>
                 <Insets top="20" right="10" bottom="20" left="10"/>
             </padding>
 
-            <!-- Menu Items -->
             <VBox spacing="20">
-                <!-- Transaksi -->
                 <HBox alignment="CENTER_LEFT" spacing="15">
                     <ImageView fitHeight="28.0" fitWidth="28.0">
                         <Image url="@../../../Image/Logo-Transaksi.png" />
@@ -72,7 +68,6 @@
                     </Button>
                 </HBox>
 
-                <!-- Kategori -->
                 <HBox alignment="CENTER_LEFT" spacing="15">
                     <ImageView fitHeight="28.0" fitWidth="28.0">
                         <Image url="@../../../Image/Logo-kategori.png" />
@@ -85,7 +80,6 @@
                     </Button>
                 </HBox>
 
-                <!-- Anggaran -->
                 <HBox alignment="CENTER_LEFT" spacing="15">
                     <ImageView fitHeight="28.0" fitWidth="28.0">
                         <Image url="@../../../Image/Logo-Anggaran.png" />
@@ -98,7 +92,6 @@
                     </Button>
                 </HBox>
 
-                <!-- Laporan -->
                 <HBox alignment="CENTER_LEFT" spacing="15">
                     <ImageView fitHeight="28.0" fitWidth="28.0">
                         <Image url="@../../../Image/Logo-Laporan.png" />
@@ -111,7 +104,6 @@
                     </Button>
                 </HBox>
 
-                <!-- Pengaturan -->
                 <HBox alignment="CENTER_LEFT" spacing="15">
                     <ImageView fitHeight="28.0" fitWidth="28.0">
                         <Image url="@../../../Image/Logo-Pengaturan.png" />
@@ -124,7 +116,6 @@
                     </Button>
                 </HBox>
 
-                <!-- Logout -->
                 <HBox alignment="CENTER_LEFT" spacing="15">
                     <ImageView fitHeight="28.0" fitWidth="28.0">
                         <Image url="@../../../Image/Logo-logout.png" />
@@ -140,10 +131,8 @@
         </VBox>
     </left>
 
-    <!-- Main Content -->
     <center>
         <VBox style="-fx-padding: 20;" spacing="15">
-            <!-- Title Section -->
             <HBox alignment="CENTER_LEFT" spacing="10">
                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Transaksi">
                     <font>
@@ -152,11 +141,9 @@
                 </Text>
             </HBox>
 
-            <!-- Filter Section -->
             <VBox style="-fx-background-color: white; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 15;"
                   spacing="15">
                 <HBox spacing="20" alignment="CENTER_LEFT">
-                    <!-- Transaction Type Filter -->
                     <VBox spacing="5" prefWidth="200">
                         <Label text="Jenis Transaksi:" style="-fx-font-weight: bold;"/>
                         <ComboBox fx:id="comboJenisTransaksi" prefWidth="200">
@@ -170,7 +157,6 @@
                         </ComboBox>
                     </VBox>
 
-                    <!-- Date Range Filter -->
                     <VBox spacing="5" prefWidth="350">
                         <Label text="Rentang Waktu:" style="-fx-font-weight: bold;"/>
                         <HBox spacing="10" alignment="CENTER_LEFT">
@@ -180,11 +166,9 @@
                         </HBox>
                     </VBox>
 
-                    <!-- Category Filter -->
                     <VBox spacing="5" prefWidth="200">
                         <Label text="Kategori:" style="-fx-font-weight: bold;"/>
                         <ComboBox fx:id="comboKategori" prefWidth="200" promptText="Semua Kategori">
-
                         </ComboBox>
                     </VBox>
                 </HBox>
@@ -207,7 +191,6 @@
                 </HBox>
             </VBox>
 
-            <!-- Transaction Table -->
             <VBox style="-fx-background-color: white; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 10;"
                   spacing="10">
                 <TreeTableView fx:id="treeTableTransaksi" prefHeight="400.0">
@@ -218,6 +201,7 @@
                         <TreeTableColumn fx:id="colDeskripsi" prefWidth="250.0" text="Deskripsi"/>
                         <TreeTableColumn fx:id="colJumlah" prefWidth="150.0" text="Jumlah (Rp)"/>
                         <TreeTableColumn fx:id="colDokumen" prefWidth="80.0" text="Dokumen"/>
+                        <TreeTableColumn fx:id="colGambar" prefWidth="80.0" text="Gambar"/>
                         <TreeTableColumn fx:id="colAksi" prefWidth="150.0" text="Aksi"/>
                     </columns>
                 </TreeTableView>

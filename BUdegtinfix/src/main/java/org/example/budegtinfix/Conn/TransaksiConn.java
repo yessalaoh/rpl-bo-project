@@ -18,23 +18,26 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import org.example.budegtinfix.Database.TransaksiDAO;
 import org.example.budegtinfix.Session.Session;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional; // Pastikan ini diimpor untuk Optional
+import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.List; // Import untuk List di TransaksiDAO
+import java.util.List;
 
 public class TransaksiConn implements Initializable {
-    // Kelas Transaksi Anda sudah bagus, biarkan seperti itu
+
+    // **1. Modifikasi Kelas Transaksi**
     public static class Transaksi {
         private final IntegerProperty id;
         private final StringProperty tanggal, jenis, kategori, deskripsi;
         private final DoubleProperty jumlah;
         private final BooleanProperty memilikiDokumen;
+        private final StringProperty imageUrl; // Tambahkan properti untuk URL/path gambar
 
-        public Transaksi(int id, String tanggal, String jenis, String kategori, String deskripsi, double jumlah, boolean memilikiDokumen) {
+        public Transaksi(int id, String tanggal, String jenis, String kategori, String deskripsi, double jumlah, boolean memilikiDokumen, String imageUrl) {
             this.id = new SimpleIntegerProperty(id);
             this.tanggal = new SimpleStringProperty(tanggal);
             this.jenis = new SimpleStringProperty(jenis);
@@ -42,6 +45,7 @@ public class TransaksiConn implements Initializable {
             this.deskripsi = new SimpleStringProperty(deskripsi);
             this.jumlah = new SimpleDoubleProperty(jumlah);
             this.memilikiDokumen = new SimpleBooleanProperty(memilikiDokumen);
+            this.imageUrl = new SimpleStringProperty(imageUrl); // Inisialisasi properti gambar
         }
 
         public int getId() { return id.get(); }
@@ -51,6 +55,7 @@ public class TransaksiConn implements Initializable {
         public String getDeskripsi() { return deskripsi.get(); }
         public double getJumlah() { return jumlah.get(); }
         public boolean isMemilikiDokumen() { return memilikiDokumen.get(); }
+        public String getImageUrl() { return imageUrl.get(); } // Getter untuk imageUrl
 
         public IntegerProperty idProperty() { return id; }
         public StringProperty tanggalProperty() { return tanggal; }
@@ -59,6 +64,7 @@ public class TransaksiConn implements Initializable {
         public StringProperty deskripsiProperty() { return deskripsi; }
         public DoubleProperty jumlahProperty() { return jumlah; }
         public BooleanProperty memilikiDokumenProperty() { return memilikiDokumen; }
+        public StringProperty imageUrlProperty() { return imageUrl; } // Property untuk imageUrl
     }
 
     @FXML private ComboBox<String> comboJenisTransaksi, comboKategori;
@@ -69,6 +75,12 @@ public class TransaksiConn implements Initializable {
     @FXML private TreeTableColumn<Transaksi, Number> colJumlah;
     @FXML private TreeTableColumn<Transaksi, Boolean> colDokumen;
     @FXML private TreeTableColumn<Transaksi, Void> colAksi;
+
+    // **PERBAIKAN: Hapus baris duplikat ini jika sudah ada di atas**
+    // @FXML private TreeTableColumn<Transaksi, String> colGambar;
+
+    // Pastikan hanya ada satu deklarasi ini:
+    @FXML private TreeTableColumn<Transaksi, String> colGambar;
 
     private final TransaksiDAO transaksiDAO = new TransaksiDAO();
     private ObservableList<Transaksi> currentDisplayedTransaksi = FXCollections.observableArrayList();
@@ -133,6 +145,57 @@ public class TransaksiConn implements Initializable {
             }
         });
 
+        // **3. Implementasi CellFactory untuk colGambar**
+        colGambar.setCellValueFactory(new TreeItemPropertyValueFactory<>("imageUrl")); // Mengambil URL gambar dari properti imageUrl
+
+        colGambar.setCellFactory(tc -> new TreeTableCell<Transaksi, String>() {
+            private final ImageView imageView = new ImageView();
+            {
+                imageView.setFitHeight(50); // Atur tinggi gambar
+                imageView.setPreserveRatio(true); // Pertahankan rasio aspek
+            }
+
+            @Override
+            protected void updateItem(String imageUrl, boolean empty) {
+                super.updateItem(imageUrl, empty);
+                if (empty || imageUrl == null || imageUrl.isEmpty()) {
+                    setGraphic(null);
+                    setText(null);
+                } else {
+                    try {
+                        Image image;
+                        if (imageUrl.startsWith("file:/")) { // Ini menunjukkan URI file lokal
+                            image = new Image(imageUrl, true); // true untuk background loading
+                        } else { // Asumsikan itu adalah path resource internal
+                            URL resourceUrl = getClass().getResource(imageUrl);
+                            if (resourceUrl != null) {
+                                image = new Image(resourceUrl.toExternalForm(), true);
+                            } else {
+                                // Jika tidak ditemukan sebagai resource, coba sebagai file path
+                                File file = new File(imageUrl);
+                                if (file.exists()) {
+                                    image = new Image(file.toURI().toString(), true);
+                                } else {
+                                    System.err.println("Gambar tidak ditemukan sebagai resource atau file: " + imageUrl);
+                                    setGraphic(null);
+                                    setText("Gambar Tidak Ada");
+                                    return;
+                                }
+                            }
+                        }
+                        imageView.setImage(image);
+                        setGraphic(imageView);
+                        setText(null);
+                    } catch (Exception e) {
+                        System.err.println("Gagal memuat gambar dari URL/Path: " + imageUrl + " - " + e.getMessage());
+                        setGraphic(null);
+                        setText("Error Load"); // Tampilkan teks jika gambar gagal dimuat
+                    }
+                }
+            }
+        });
+
+
         colAksi.setCellFactory(tc -> new TreeTableCell<>() {
             private final Button deleteBtn = new Button("Hapus");
             {
@@ -157,6 +220,7 @@ public class TransaksiConn implements Initializable {
             refreshTreeTable(currentDisplayedTransaksi);
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Error", "Gagal memuat data dari database: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -166,6 +230,7 @@ public class TransaksiConn implements Initializable {
             refreshTreeTable(currentDisplayedTransaksi);
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Error", "Gagal memuat data transaksi berdasarkan filter: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -194,7 +259,8 @@ public class TransaksiConn implements Initializable {
                 } else {
                     showAlert(Alert.AlertType.ERROR, "Gagal", "Gagal menghapus transaksi dari database.");
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 e.printStackTrace();
                 showAlert(Alert.AlertType.ERROR, "Error", "Terjadi kesalahan saat menghapus transaksi: " + e.getMessage());
             }
@@ -215,9 +281,9 @@ public class TransaksiConn implements Initializable {
             FXMLLoader loader = new FXMLLoader(fxmlLocation);
             Parent root = loader.load();
 
-            int currentUserId = Session.getIdUser(); // Ambil ID user dari sesi yang aktif
-            TambahTransaksiConn controller = loader.getController(); // Dapatkan instance controller dari FXML yang dimuat
-            controller.setCurrentUserId(currentUserId); // Panggil metode setter di controller untuk meneruskan ID user
+            int currentUserId = Session.getIdUser();
+            TambahTransaksiConn controller = loader.getController();
+            controller.setCurrentUserId(currentUserId);
 
             Stage stage = new Stage();
             stage.setScene(new Scene(root));
@@ -261,7 +327,7 @@ public class TransaksiConn implements Initializable {
     // Navigation Buttons
     @FXML private void pengaturanBtnClicked(ActionEvent e) { loadScene(e, "Pengaturan-view.fxml"); }
     @FXML private void notifikasiBtnClicked(ActionEvent e) { loadScene(e, "Notifikasi-view.fxml"); }
-    @FXML private void laporanBtnClicked(ActionEvent e) { loadScene(e, "Laporan-view.fxml"); }
+    @FXML private void laporanBtnClicked(ActionEvent e) { loadScene(e, "Diagram.fxml"); }
     @FXML private void anggaranBtnClicked(ActionEvent e) { loadScene(e, "Anggaran-view.fxml"); }
     @FXML private void kategoriBtnClicked(ActionEvent e) { loadScene(e, "Kategori-view.fxml"); }
     @FXML private void logoutBtnClicked(ActionEvent e) {

@@ -19,7 +19,8 @@ public class TransaksiDAO {
 
     public List<Transaksi> getFilteredTransaksi(String jenis, String kategori, LocalDate startDate, LocalDate endDate) {
         List<Transaksi> transaksiList = new ArrayList<>();
-        String sql = "SELECT id, tanggal, jenis, kategori, deskripsi, jumlah, memiliki_dokumen FROM transaksi WHERE user_id = ?";
+        // **PERBAIKAN 1: Tambahkan kolom 'gambar_path' di SELECT statement**
+        String sql = "SELECT id, tanggal, jenis, kategori, deskripsi, jumlah, memiliki_dokumen, gambar_path FROM transaksi WHERE user_id = ?";
         StringBuilder whereClause = new StringBuilder();
         ArrayList<Object> params = new ArrayList<>();
 
@@ -65,8 +66,11 @@ public class TransaksiDAO {
                     String deskripsi = rs.getString("deskripsi");
                     double jumlah = rs.getDouble("jumlah");
                     boolean memilikiDokumen = rs.getInt("memiliki_dokumen") == 1;
+                    // **PERBAIKAN 2: Ambil nilai 'gambar_path' dari ResultSet**
+                    String imageUrl = rs.getString("gambar_path"); // Pastikan nama kolom sesuai di DB Anda
 
-                    transaksiList.add(new Transaksi(id, tanggal, jenisDb, kategoriDb, deskripsi, jumlah, memilikiDokumen));
+                    // **PERBAIKAN 3: Lewatkan imageUrl ke konstruktor Transaksi**
+                    transaksiList.add(new Transaksi(id, tanggal, jenisDb, kategoriDb, deskripsi, jumlah, memilikiDokumen, imageUrl));
                 }
             }
         } catch (SQLException e) {
@@ -92,8 +96,9 @@ public class TransaksiDAO {
         }
     }
 
+    // **PERBAIKAN 4: Tambahkan parameter imageUrl ke metode addTransaksi**
     public boolean addTransaksi(Transaksi transaksi) {
-        String sql = "INSERT INTO transaksi(user_id, tanggal, jenis, kategori, deskripsi, jumlah, memiliki_dokumen) VALUES(?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO transaksi(user_id, tanggal, jenis, kategori, deskripsi, jumlah, memiliki_dokumen, gambar_path) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = CatatanDB.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, Session.getIdUser());
@@ -103,6 +108,8 @@ public class TransaksiDAO {
             pstmt.setString(5, transaksi.getDeskripsi());
             pstmt.setDouble(6, transaksi.getJumlah());
             pstmt.setInt(7, transaksi.isMemilikiDokumen() ? 1 : 0);
+            // **PERBAIKAN 5: Set nilai imageUrl ke PreparedStatement**
+            pstmt.setString(8, transaksi.getImageUrl()); // Pastikan urutan parameter sesuai dengan SQL
             int affectedRows = pstmt.executeUpdate();
             return affectedRows > 0;
         } catch (SQLException e) {
@@ -112,8 +119,9 @@ public class TransaksiDAO {
         }
     }
 
+    // **PERBAIKAN 6: Tambahkan parameter imageUrl ke metode updateTransaksi**
     public boolean updateTransaksi(Transaksi transaksi) {
-        String sql = "UPDATE transaksi SET tanggal = ?, jenis = ?, kategori = ?, deskripsi = ?, jumlah = ?, memiliki_dokumen = ? WHERE id = ? AND user_id = ?";
+        String sql = "UPDATE transaksi SET tanggal = ?, jenis = ?, kategori = ?, deskripsi = ?, jumlah = ?, memiliki_dokumen = ?, gambar_path = ? WHERE id = ? AND user_id = ?";
         try (Connection conn = CatatanDB.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, transaksi.getTanggal());
@@ -122,8 +130,10 @@ public class TransaksiDAO {
             pstmt.setString(4, transaksi.getDeskripsi());
             pstmt.setDouble(5, transaksi.getJumlah());
             pstmt.setInt(6, transaksi.isMemilikiDokumen() ? 1 : 0);
-            pstmt.setInt(7, transaksi.getId());
-            pstmt.setInt(8, Session.getIdUser());
+            // **PERBAIKAN 7: Set nilai imageUrl ke PreparedStatement**
+            pstmt.setString(7, transaksi.getImageUrl()); // Pastikan urutan parameter sesuai dengan SQL
+            pstmt.setInt(8, transaksi.getId());
+            pstmt.setInt(9, Session.getIdUser());
             int affectedRows = pstmt.executeUpdate();
             return affectedRows > 0;
         } catch (SQLException e) {
