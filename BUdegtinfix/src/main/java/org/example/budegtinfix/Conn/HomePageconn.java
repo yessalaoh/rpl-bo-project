@@ -44,7 +44,7 @@ public class HomePageconn {
 
     @FXML
     void anggaranBtnClicked(ActionEvent event) {
-        loadScene(event, "Anggaran.fxml");
+        loadScene(event, "Anggaran-view.fxml");
     }
 
     @FXML
@@ -67,7 +67,7 @@ public class HomePageconn {
         Optional<javafx.scene.control.ButtonType> result = alert.showAndWait();
 
         if (result.isPresent() && result.get() == javafx.scene.control.ButtonType.OK) {
-            Session.clearSession(); // Hapus session saat logout
+            Session.clearSession();
             loadScene(event, "Login-view.fxml");
         }
     }

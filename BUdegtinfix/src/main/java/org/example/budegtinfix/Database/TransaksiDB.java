@@ -15,7 +15,9 @@ public class TransaksiDB {
                 deskripsi TEXT,
                 jumlah REAL NOT NULL,
                 memiliki_dokumen INTEGER NOT NULL DEFAULT 0,
+                gambar_path TEXT,
                 user_id INTEGER,
+                created_at TEXT DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now')),
                 FOREIGN KEY (user_id) REFERENCES users(id)
             );
             """;
@@ -23,7 +25,8 @@ public class TransaksiDB {
         try (Connection conn = CatatanDB.connect();
              var stmt = conn.createStatement()) {
             stmt.execute(sql);
-            System.out.println("Tabel transaksi berhasil dibuat/ditemukan");
+            System.out.println("Tabel transaksi berhasil dibuat/ditemukan.");
+            // Hapus bagian alter table di sini jika Anda sudah yakin kolom created_at selalu ada
         } catch (SQLException e) {
             System.err.println("Gagal membuat tabel transaksi: " + e.getMessage());
             e.printStackTrace();

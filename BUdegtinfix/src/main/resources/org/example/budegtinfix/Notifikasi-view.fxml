@@ -13,7 +13,6 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="515.0" prefWidth="800.0" style="-fx-background-color: #dfdfdf;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.budegtinfix.Conn.NotifikasiConn">
 
-    <!-- Bagian Atas (Top Bar) -->
     <top>
         <AnchorPane prefHeight="72.0" prefWidth="800.0" style="-fx-background-color: #0698ff;" BorderPane.alignment="CENTER">
             <Text fill="WHITE" layoutX="283.0" layoutY="48.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Budgetin" textAlignment="CENTER" wrappingWidth="233.79058837890625">
@@ -21,24 +20,20 @@
                     <Font name="System Bold Italic" size="34.0" />
                 </font>
             </Text>
-            <Text fill="WHITE" layoutX="654.0" layoutY="40.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Hallo, Gerry" textAlignment="CENTER">
+
+            <Text fx:id="helloUserText" fill="WHITE" layoutX="600.0" layoutY="45.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Halo, User" textAlignment="RIGHT" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="25.0">
                 <font>
-                    <Font name="System Bold" size="12.0" />
+                    <Font name="System Bold Italic" size="24.0" />
                 </font>
             </Text>
-            <ImageView fitHeight="29.0" fitWidth="29.0" layoutX="739.0" layoutY="22.0">
-                <Image url="@../../../Image/Logo-User.png" />
-            </ImageView>
         </AnchorPane>
     </top>
 
-    <!-- Bagian Tengah (Isi Halaman Notifikasi) -->
     <center>
         <AnchorPane prefHeight="443.0" prefWidth="800.0">
             <Label layoutX="30.0" layoutY="20.0" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Notifikasi" />
 
             <VBox layoutX="30.0" layoutY="60.0" spacing="10.0">
-                <!-- Notifikasi 1 -->
                 <HBox spacing="10.0" style="-fx-background-color: white; -fx-padding: 10; -fx-border-color: lightgray; -fx-background-radius: 6;">
                     <ImageView fitHeight="24.0" fitWidth="24.0">
                         <Image url="@../../../Image/Logo-Notifikasi.png" />
@@ -49,7 +44,6 @@
                     </VBox>
                 </HBox>
 
-                <!-- Notifikasi 2 -->
                 <HBox spacing="10.0" style="-fx-background-color: white; -fx-padding: 10; -fx-border-color: lightgray; -fx-background-radius: 6;">
                     <ImageView fitHeight="24.0" fitWidth="24.0">
                         <Image url="@../../../Image/Logo-Notifikasi.png" />

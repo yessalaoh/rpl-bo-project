@@ -15,6 +15,7 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.example.budegtinfix.Database.TransaksiDAO;
 import org.example.budegtinfix.Session.Session;
@@ -29,13 +30,12 @@ import java.util.List;
 
 public class TransaksiConn implements Initializable {
 
-    // **1. Modifikasi Kelas Transaksi**
     public static class Transaksi {
         private final IntegerProperty id;
         private final StringProperty tanggal, jenis, kategori, deskripsi;
         private final DoubleProperty jumlah;
         private final BooleanProperty memilikiDokumen;
-        private final StringProperty imageUrl; // Tambahkan properti untuk URL/path gambar
+        private final StringProperty imageUrl;
 
         public Transaksi(int id, String tanggal, String jenis, String kategori, String deskripsi, double jumlah, boolean memilikiDokumen, String imageUrl) {
             this.id = new SimpleIntegerProperty(id);
@@ -45,7 +45,7 @@ public class TransaksiConn implements Initializable {
             this.deskripsi = new SimpleStringProperty(deskripsi);
             this.jumlah = new SimpleDoubleProperty(jumlah);
             this.memilikiDokumen = new SimpleBooleanProperty(memilikiDokumen);
-            this.imageUrl = new SimpleStringProperty(imageUrl); // Inisialisasi properti gambar
+            this.imageUrl = new SimpleStringProperty(imageUrl);
         }
 
         public int getId() { return id.get(); }
@@ -55,7 +55,7 @@ public class TransaksiConn implements Initializable {
         public String getDeskripsi() { return deskripsi.get(); }
         public double getJumlah() { return jumlah.get(); }
         public boolean isMemilikiDokumen() { return memilikiDokumen.get(); }
-        public String getImageUrl() { return imageUrl.get(); } // Getter untuk imageUrl
+        public String getImageUrl() { return imageUrl.get(); }
 
         public IntegerProperty idProperty() { return id; }
         public StringProperty tanggalProperty() { return tanggal; }
@@ -64,7 +64,7 @@ public class TransaksiConn implements Initializable {
         public StringProperty deskripsiProperty() { return deskripsi; }
         public DoubleProperty jumlahProperty() { return jumlah; }
         public BooleanProperty memilikiDokumenProperty() { return memilikiDokumen; }
-        public StringProperty imageUrlProperty() { return imageUrl; } // Property untuk imageUrl
+        public StringProperty imageUrlProperty() { return imageUrl; }
     }
 
     @FXML private ComboBox<String> comboJenisTransaksi, comboKategori;
@@ -75,26 +75,30 @@ public class TransaksiConn implements Initializable {
     @FXML private TreeTableColumn<Transaksi, Number> colJumlah;
     @FXML private TreeTableColumn<Transaksi, Boolean> colDokumen;
     @FXML private TreeTableColumn<Transaksi, Void> colAksi;
-
-    // **PERBAIKAN: Hapus baris duplikat ini jika sudah ada di atas**
-    // @FXML private TreeTableColumn<Transaksi, String> colGambar;
-
-    // Pastikan hanya ada satu deklarasi ini:
     @FXML private TreeTableColumn<Transaksi, String> colGambar;
+
+    @FXML private Text helloUserText;
+    @FXML private Label labelSaldo; // **DEKLARASI LABEL SALDO BARU**
 
     private final TransaksiDAO transaksiDAO = new TransaksiDAO();
     private ObservableList<Transaksi> currentDisplayedTransaksi = FXCollections.observableArrayList();
 
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        if (Session.getIdUser() != 0 && Session.getNamaUser() != null) {
+            helloUserText.setText("Halo, " + Session.getNamaUser() + "!");
+        } else {
+            helloUserText.setText("Halo, Pengguna!");
+        }
+
         comboJenisTransaksi.getItems().addAll("Semua", "Pemasukan", "Pengeluaran");
         comboJenisTransaksi.getSelectionModel().selectFirst();
         comboKategori.getItems().addAll("Semua Kategori", "Makanan", "Transportasi", "Gaji", "Tabungan", "Hiburan", "Tagihan", "Pendidikan", "Investasi", "Lain-lain");
         comboKategori.getSelectionModel().selectFirst();
 
         setupTreeTableView();
-        loadAllDataForCurrentUser(); // Memuat semua data awal untuk user saat ini
+        loadAllDataForCurrentUser();
+        updateSaldoDisplay(); // **Panggil metode untuk memperbarui saldo saat inisialisasi**
     }
 
     private void setupTreeTableView() {
@@ -135,7 +139,8 @@ public class TransaksiConn implements Initializable {
                     setGraphic(null);
                 } else {
                     try {
-                        icon.setImage(new Image(getClass().getResourceAsStream("/org/example/budegtinfix/images/attachment.png")));
+                        // Pastikan path ini benar untuk ikon lampiran Anda
+                        icon.setImage(new Image(getClass().getResourceAsStream("/org/example/budegtinfix/Image/attachment.png")));
                         setGraphic(icon);
                     } catch (Exception e) {
                         System.err.println("Gagal load ikon dokumen: " + e.getMessage());
@@ -145,14 +150,13 @@ public class TransaksiConn implements Initializable {
             }
         });
 
-        // **3. Implementasi CellFactory untuk colGambar**
-        colGambar.setCellValueFactory(new TreeItemPropertyValueFactory<>("imageUrl")); // Mengambil URL gambar dari properti imageUrl
+        colGambar.setCellValueFactory(new TreeItemPropertyValueFactory<>("imageUrl"));
 
         colGambar.setCellFactory(tc -> new TreeTableCell<Transaksi, String>() {
             private final ImageView imageView = new ImageView();
             {
-                imageView.setFitHeight(50); // Atur tinggi gambar
-                imageView.setPreserveRatio(true); // Pertahankan rasio aspek
+                imageView.setFitHeight(50);
+                imageView.setPreserveRatio(true);
             }
 
             @Override
@@ -164,14 +168,13 @@ public class TransaksiConn implements Initializable {
                 } else {
                     try {
                         Image image;
-                        if (imageUrl.startsWith("file:/")) { // Ini menunjukkan URI file lokal
-                            image = new Image(imageUrl, true); // true untuk background loading
-                        } else { // Asumsikan itu adalah path resource internal
+                        if (imageUrl.startsWith("file:/")) {
+                            image = new Image(imageUrl, true);
+                        } else {
                             URL resourceUrl = getClass().getResource(imageUrl);
                             if (resourceUrl != null) {
                                 image = new Image(resourceUrl.toExternalForm(), true);
                             } else {
-                                // Jika tidak ditemukan sebagai resource, coba sebagai file path
                                 File file = new File(imageUrl);
                                 if (file.exists()) {
                                     image = new Image(file.toURI().toString(), true);
@@ -189,12 +192,11 @@ public class TransaksiConn implements Initializable {
                     } catch (Exception e) {
                         System.err.println("Gagal memuat gambar dari URL/Path: " + imageUrl + " - " + e.getMessage());
                         setGraphic(null);
-                        setText("Error Load"); // Tampilkan teks jika gambar gagal dimuat
+                        setText("Error Load");
                     }
                 }
             }
         });
-
 
         colAksi.setCellFactory(tc -> new TreeTableCell<>() {
             private final Button deleteBtn = new Button("Hapus");
@@ -218,6 +220,7 @@ public class TransaksiConn implements Initializable {
         try {
             currentDisplayedTransaksi.setAll(transaksiDAO.getAllTransaksiForCurrentUser());
             refreshTreeTable(currentDisplayedTransaksi);
+            updateSaldoDisplay(); // **Perbarui saldo setelah memuat data**
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Error", "Gagal memuat data dari database: " + e.getMessage());
             e.printStackTrace();
@@ -228,6 +231,10 @@ public class TransaksiConn implements Initializable {
         try {
             currentDisplayedTransaksi.setAll(transaksiDAO.getFilteredTransaksi(jenis, kategori, startDate, endDate));
             refreshTreeTable(currentDisplayedTransaksi);
+            // Saldo tidak perlu diperbarui di sini karena filter tidak mengubah total saldo
+            // unless Anda ingin menampilkan saldo hanya untuk transaksi yang difilter.
+            // Untuk saldo keseluruhan, updateSaldoDisplay() hanya dipanggil di loadAllDataForCurrentUser()
+            // dan setelah transaksi ditambahkan/dihapus.
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Error", "Gagal memuat data transaksi berdasarkan filter: " + e.getMessage());
             e.printStackTrace();
@@ -254,7 +261,8 @@ public class TransaksiConn implements Initializable {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
                 if (transaksiDAO.deleteTransaksi(transaksi.getId())) {
-                    applyFilterClicked();
+                    applyFilterClicked(); // Muat ulang data yang difilter
+                    updateSaldoDisplay(); // **Perbarui saldo setelah penghapusan**
                     showAlert(Alert.AlertType.INFORMATION, "Sukses", "Transaksi berhasil dihapus.");
                 } else {
                     showAlert(Alert.AlertType.ERROR, "Gagal", "Gagal menghapus transaksi dari database.");
@@ -285,12 +293,16 @@ public class TransaksiConn implements Initializable {
             TambahTransaksiConn controller = loader.getController();
             controller.setCurrentUserId(currentUserId);
 
-            Stage stage = new Stage();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Tambah Transaksi");
-            stage.showAndWait();
+            Stage dialogStage = new Stage();
+            dialogStage.setScene(new Scene(root));
+            dialogStage.setTitle("Tambah Transaksi");
+            controller.setDialogStage(dialogStage);
+            dialogStage.showAndWait();
 
-            applyFilterClicked();
+            if (controller.isTransactionAdded()) {
+                applyFilterClicked(); // Muat ulang data yang difilter
+                updateSaldoDisplay(); // **Perbarui saldo setelah penambahan**
+            }
         } catch (IOException e) {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Error", "Gagal membuka form tambah transaksi: " + e.getMessage());
@@ -305,6 +317,7 @@ public class TransaksiConn implements Initializable {
         LocalDate end = datePickerEnd.getValue();
 
         loadFilteredDataFromDatabase(jenis, kategori, start, end);
+        // Saldo tidak perlu diperbarui di sini karena filter tidak mengubah total saldo
     }
 
     @FXML
@@ -313,7 +326,7 @@ public class TransaksiConn implements Initializable {
         comboKategori.getSelectionModel().selectFirst();
         datePickerStart.setValue(null);
         datePickerEnd.setValue(null);
-        loadAllDataForCurrentUser();
+        loadAllDataForCurrentUser(); // Ini akan memanggil updateSaldoDisplay()
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {
@@ -322,6 +335,23 @@ public class TransaksiConn implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    // **METODE BARU: Perbarui Tampilan Saldo**
+    private void updateSaldoDisplay() {
+        if (Session.getIdUser() != 0) {
+            double saldo = transaksiDAO.getTotalSaldo(Session.getIdUser());
+            labelSaldo.setText(String.format("Saldo: Rp %,.2f", saldo));
+            // Anda bisa tambahkan logika untuk mengubah warna saldo jika negatif, dll.
+            if (saldo < 0) {
+                labelSaldo.setStyle("-fx-font-weight: bold; -fx-font-size: 24px; -fx-text-fill: red;");
+            } else {
+                labelSaldo.setStyle("-fx-font-weight: bold; -fx-font-size: 24px; -fx-text-fill: #0698ff;");
+            }
+        } else {
+            labelSaldo.setText("Saldo: N/A");
+            labelSaldo.setStyle("-fx-font-weight: bold; -fx-font-size: 24px; -fx-text-fill: gray;");
+        }
     }
 
     // Navigation Buttons

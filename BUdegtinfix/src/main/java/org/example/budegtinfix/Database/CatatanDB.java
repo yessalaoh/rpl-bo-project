@@ -31,44 +31,62 @@ public class CatatanDB {
 
     private static void initializeTables(Connection conn) {
         try (Statement stmt = conn.createStatement()) {
+            // Tabel users (sudah ada)
             String createUserTable = """
-                CREATE TABLE IF NOT EXISTS users (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    username TEXT NOT NULL UNIQUE,
-                    email TEXT NOT NULL UNIQUE,
-                    password TEXT NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                );
-                """;
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL UNIQUE,
+                email TEXT NOT NULL UNIQUE,
+                password TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            """;
 
+            // Tabel transaksi (sudah ada)
             String createTransaksiTable = """
-                CREATE TABLE IF NOT EXISTS transaksi (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    tanggal TEXT NOT NULL,
-                    jenis TEXT NOT NULL CHECK (jenis IN ('Pemasukan', 'Pengeluaran')),
-                    kategori TEXT NOT NULL,
-                    deskripsi TEXT,
-                    jumlah REAL NOT NULL,
-                    memiliki_dokumen INTEGER NOT NULL DEFAULT 0,
-                    user_id INTEGER NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (user_id) REFERENCES users(id)
-                );
-                """;
+            CREATE TABLE IF NOT EXISTS transaksi (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                tanggal TEXT NOT NULL,
+                jenis TEXT NOT NULL CHECK (jenis IN ('Pemasukan', 'Pengeluaran')),
+                kategori TEXT NOT NULL,
+                deskripsi TEXT,
+                jumlah REAL NOT NULL,
+                memiliki_dokumen INTEGER NOT NULL DEFAULT 0,
+                user_id INTEGER NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            );
+            """;
 
+            // Tabel kategori (sudah ada)
             String createKategoriTable = """
-                CREATE TABLE IF NOT EXISTS kategori (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    nama TEXT NOT NULL UNIQUE,
-                    jenis TEXT NOT NULL CHECK (jenis IN ('Pemasukan', 'Pengeluaran')),
-                    user_id INTEGER NOT NULL,
-                    FOREIGN KEY (user_id) REFERENCES users(id)
-                );
-                """;
+            CREATE TABLE IF NOT EXISTS kategori (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nama TEXT NOT NULL UNIQUE,
+                jenis TEXT NOT NULL CHECK (jenis IN ('Pemasukan', 'Pengeluaran')),
+                user_id INTEGER NOT NULL,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            );
+            """;
 
+            // Tabel baru anggaran (tambahkan ini)
+            String createAnggaranTable = """
+            CREATE TABLE IF NOT EXISTS anggaran (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nama TEXT NOT NULL,
+                jumlah REAL NOT NULL,
+                kategori TEXT NOT NULL,
+                user_id INTEGER NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            );
+            """;
+
+            // Eksekusi semua perintah CREATE TABLE
             stmt.execute(createUserTable);
             stmt.execute(createTransaksiTable);
             stmt.execute(createKategoriTable);
+            stmt.execute(createAnggaranTable);  // Tambahkan ini
 
             System.out.println("Tabel-tabel berhasil diinisialisasi");
 

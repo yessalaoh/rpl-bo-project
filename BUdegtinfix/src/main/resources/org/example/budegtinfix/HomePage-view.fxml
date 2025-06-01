@@ -18,11 +18,6 @@
                         <Font name="System Bold Italic" size="34.0" />
                     </font>
                 </Text>
-                <ImageView fitHeight="29.0" fitWidth="29.0" layoutX="739.0" layoutY="22.0">
-                    <image>
-                        <Image url="@../../../Image/Logo-User.png" />
-                    </image>
-                </ImageView>
                 <Button id="Notif" fx:id="NotifBtn" layoutX="69.0" layoutY="23.0" mnemonicParsing="false" onAction="#btnNotifClicked" prefHeight="27.0" prefWidth="74.0" style="-fx-background-color: Transparent;" text="Notifikasi" textFill="#f4e9e9">
                     <font>
                         <Font name="System Bold" size="12.0" />
