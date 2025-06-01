@@ -17,4 +17,6 @@ module org.example.budegtinfix {
     exports org.example.budegtinfix;
     exports org.example.budegtinfix.Conn;
     opens org.example.budegtinfix.Conn to javafx.fxml;
+    exports org.example.budegtinfix.Database;
+    opens org.example.budegtinfix.Database to javafx.fxml;
 }

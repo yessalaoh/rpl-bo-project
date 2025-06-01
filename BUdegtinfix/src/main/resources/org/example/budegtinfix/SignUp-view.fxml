@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.budegtinfix.Conn.SignUPConn">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.budegtinfix.Conn.SignUPConn">
     <left>
         <AnchorPane prefHeight="500.0" prefWidth="350.0" style="-fx-background-color: #0698ff;" BorderPane.alignment="CENTER">
             <children>
@@ -21,12 +27,12 @@
     <right>
         <AnchorPane prefHeight="500.0" prefWidth="350.0" style="-fx-background-color: #ffff;" BorderPane.alignment="CENTER">
             <children>
-                <Text fill="#0698ff" layoutX="100.0" layoutY="66.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Create Account">
+                <Text fill="#0698ff" layoutX="75.0" layoutY="134.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Buat Akun Budgetinmu">
                     <font>
                         <Font name="System Bold" size="21.0" />
                     </font>
                 </Text>
-                <Button fx:id="SignBtn" layoutX="95.0" layoutY="384.0" mnemonicParsing="false" onAction="#btnSignUp" prefHeight="37.0" prefWidth="191.0" style="-fx-background-color: #0698ff;" text="Sign Up" textFill="WHITE">
+                <Button fx:id="SignBtn" layoutX="95.0" layoutY="384.0" mnemonicParsing="false" onAction="#btnSignUp" prefHeight="37.0" prefWidth="191.0" style="-fx-background-color: #0698ff;" text="Daftar" textFill="WHITE">
                     <padding>
                         <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
                     </padding>
@@ -35,7 +41,16 @@
                     </font>
                 </Button>
                 <TextField fx:id="usernameField" layoutX="112.0" layoutY="195.0" prefWidth="168.0" promptText="Username" style="-fx-background-color: transparent; -fx-border-color: #0598ff; -fx-border-radius: 5px;" />
-                <TextField fx:id="passwordField" layoutX="112.0" layoutY="274.0" prefWidth="168.0" promptText="Password" style="-fx-background-color: transparent; -fx-border-color: #0598ff; -fx-border-radius: 5px;" />
+
+                <!-- PasswordField untuk password tersembunyi -->
+                <PasswordField fx:id="passwordField" layoutX="112.0" layoutY="274.0" prefWidth="168.0" promptText="Password" style="-fx-background-color: transparent; -fx-border-color: #0598ff; -fx-border-radius: 5px;" />
+
+                <!-- TextField untuk password visible, default hidden -->
+                <TextField fx:id="passwordVisibleField" layoutX="112.0" layoutY="274.0" prefWidth="168.0" promptText="Password" style="-fx-background-color: transparent; -fx-border-color: #0598ff; -fx-border-radius: 5px;" visible="false" managed="false"/>
+
+                <!-- Checkbox untuk toggle show/hide password -->
+                <CheckBox fx:id="showPasswordCheckBox" layoutX="285.0" layoutY="275.0" mnemonicParsing="false" text="Show" style="-fx-background-color: transparent;" />
+
                 <ImageView fitHeight="43.0" fitWidth="25.0" layoutX="79.0" layoutY="196.0" pickOnBounds="true" preserveRatio="true">
                     <image>
                         <Image url="@../../../Image/Logo-Username.jpg" />
@@ -47,42 +62,7 @@
                     </image>
                 </ImageView>
                 <CheckBox layoutX="96.0" layoutY="339.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="79.0" style="-fx-background-color: transparent;" text="Accept" />
-                <Button layoutX="79.0" layoutY="78.0" mnemonicParsing="false" prefHeight="21.0" prefWidth="39.0" style="-fx-background-color: transparent; -fx-border-color: #0598ff; -fx-border-radius: 5px;">
-                    <graphic>
-                        <ImageView fitHeight="27.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
-                            <image>
-                                <Image url="@../../../Image/Logo-Facebook.jpg" />
-                            </image></ImageView>
-                    </graphic>
-                </Button>
-                <Button layoutX="131.0" layoutY="78.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="34.0" style="-fx-background-color: transparent; -fx-border-color: #0598ff; -fx-border-radius: 5px;">
-                    <graphic>
-                        <ImageView fitHeight="27.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
-                            <image>
-                                <Image url="@../../../Image/Logo-Google.png" />
-                            </image>
-                        </ImageView>
-                    </graphic>
-                </Button>
-                <Button layoutX="190.0" layoutY="76.0" mnemonicParsing="false" prefHeight="21.0" prefWidth="39.0" style="-fx-background-color: transparent; -fx-border-color: #0598ff; -fx-border-radius: 5px;">
-                    <graphic>
-                        <ImageView fitHeight="27.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
-                            <image>
-                                <Image url="@../../../Image/Logo-Instagram.jpg" />
-                            </image>
-                        </ImageView>
-                    </graphic>
-                </Button>
-                <Button layoutX="244.0" layoutY="76.0" mnemonicParsing="false" prefHeight="21.0" prefWidth="39.0" style="-fx-background-color: transparent; -fx-border-color: #0598ff; -fx-border-radius: 5px;">
-                    <graphic>
-                        <ImageView fitHeight="27.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
-                            <image>
-                                <Image url="@../../../Image/Logo-Facebook.jpg" />
-                            </image>
-                        </ImageView>
-                    </graphic>
-                </Button>
-                <Text fill="#bccee0" layoutX="93.0" layoutY="143.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Our use for email for Registration">
+                <Text fill="#bccee0" layoutX="25.0" layoutY="164.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Kami menggunakan email untuk proses pendaftaran.">
                     <font>
                         <Font name="System Bold Italic" size="12.0" />
                     </font></Text>
@@ -97,7 +77,7 @@
                         <Font name="System Bold" size="12.0" />
                     </font>
                 </Text>
-                <Button fx:id="btnBack" layoutX="159.0" layoutY="439.0" mnemonicParsing="false" onAction="#goBackToLogin" style="-fx-background-color: none;" text="to Login" textFill="#6399ef">
+                <Button fx:id="btnBack" layoutX="159.0" layoutY="439.0" mnemonicParsing="false" onAction="#goBackToLogin" style="-fx-background-color: none;" text="Masuk" textFill="#6399ef">
                     <font>
                         <Font name="System Bold" size="12.0" />
                     </font>
